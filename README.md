@@ -63,6 +63,7 @@ yarn storybook
 | dataPoints | **required** | An array of integers - the data you want plotted, e.g \[1,2,3,4]. This prop is different for [PieChart](#piechart) and [BarChart](#barchart) |
 | svg | `{}` | an object containing  all the props that should be passed down to the underlying `react-native-svg` component. [See available props](https://github.com/react-native-community/react-native-svg#common-props)|
 | renderGradient | `() => {}` | function that renders the gradient. [Example](#gradient) |
+| renderGradient | `{}` | function that renders a gradient from a breakpoint. [Example](#breakpointGradient) |
 | animate | true | PropTypes.bool |
 | animationDuration | 300 | PropTypes.number |
 | style | undefined | Supports all [ViewStyleProps](https://facebook.github.io/react-native/docs/viewstyleproptypes.html) |
@@ -816,6 +817,42 @@ class GradientAdvancedExample extends React.PureComponent {
 
 export default GradientAdvancedExample
 
+```
+
+### BreakpointGradient
+BreakpointGradients are supported by the `LineChart` and is used with the `breakpointGradient` prop according to the example below.
+
+![Gradient LineChart](https://raw.githubusercontent.com/jesperlekland/react-native-svg-charts/master/screenshots/gradient-line.png)
+
+```javascript
+import React from 'react'
+import { AreaChart } from 'react-native-svg-charts'
+import { LinearGradient, Stop } from 'react-native-svg'
+
+class GradientExample extends React.PureComponent {
+
+    render() {
+
+        const data = [ 50, 10, 40, 95, -4, -24, 85, 91, 35, 53, -53, 24, 50, -20, -80 ]
+
+        return (
+            <LineChart
+                style={ { height: 200 } }
+                dataPoints={ data }
+                contentInset={ { top: 20, bottom: 20 } }
+                breakpointGradient={
+                  {
+                    breakpoint: data[0],
+                    colorBelow: 'red',
+                    colorAbove: 'green'
+                  }
+                }
+              }
+            />
+        )
+    }
+
+}
 ```
 
 ### Decorator

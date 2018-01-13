@@ -4,7 +4,7 @@ import * as shape from 'd3-shape'
 import PropTypes from 'prop-types'
 import React, { PureComponent } from 'react'
 import { View } from 'react-native'
-import Svg, { Defs } from 'react-native-svg'
+import Svg, { Defs, LinearGradient, Stop } from 'react-native-svg'
 import Path from './animated-path'
 import { Constants } from './util'
 import Grid from './grid'
@@ -57,6 +57,7 @@ class LineChart extends PureComponent {
                   svg,
                   shadowSvg,
                   renderGradient,
+                  breakpointGradient,
               } = this.props
 
         const { width, height } = this.state
@@ -88,7 +89,49 @@ class LineChart extends PureComponent {
             value => y(value - shadowOffset),
             (value, index) => x(index),
         )
-
+        
+        const breakPointGridProps = {
+          x1: 0,
+          y1: y(breakpointGradient.breakpoint),
+          x2: 768,
+          y2: y(breakpointGradient.breakpoint),
+          strokeDasharray: [4,2],
+          stroke: 'rgba(138, 138, 143, 0.25)'
+        }
+        
+        const renderBreakPointGradient = (id, options) => {
+          
+          const offsetCalc = (breakpoint) => {
+            let bp = y(breakpoint);
+            let ymax = y(extent[0]);
+            let off = (bp/ymax);
+            return off;
+          }
+          const offset = (breakpoint) => {
+            return (offsetCalc(breakpoint)-0.0001).toString();
+          }
+          
+          const offsetEnd = (breakpoint) => {
+            return offsetCalc(breakpoint).toString();
+          }
+          
+          return (<LinearGradient id={ id } x1={ '0%' } y1={ '0' } x2={ '0%' } y2={ '100%' }>
+            <Stop offset={ '0' } stopColor={ options.colorAbove } stopOpacity={ 1 }/>
+            <Stop offset={ offset(options.breakpoint) } stopColor={ options.colorAbove } stopOpacity={ 1 }/>
+            <Stop offset={ offsetEnd(options.breakpoint) } stopColor={ options.colorBelow } stopOpacity={ 1 }/>
+          </LinearGradient>)
+        }
+        
+        const getStroke = () => {
+          if (breakpointGradient) {
+            return 'url(#breakpointGradient)';
+          } else if (renderGradient) {
+            return 'url(#gradient)';
+          } else {
+            return svg.stroke
+          }
+        }
+        
         return (
             <View style={style}>
                 <View style={{ flex: 1 }} onLayout={event => this._onLayout(event)}>
@@ -98,18 +141,19 @@ class LineChart extends PureComponent {
                             <Grid
                                 y={ y }
                                 ticks={ ticks }
-                                gridProps={ gridProps }
+                                gridProps={ breakpointGradient ? breakPointGridProps : gridProps }
                             />
                         }
                         {
                             <Defs>
                                 { renderGradient && renderGradient({ id: 'gradient', width, height, x, y }) }
+                                { breakpointGradient && renderBreakPointGradient('breakpointGradient', breakpointGradient) }
                             </Defs>
                         }
                         <Path
                             { ...svg }
                             d={line}
-                            stroke={renderGradient ? 'url(#gradient)' : svg.stroke}
+                            stroke={getStroke()}
                             fill={ 'none' }
                             animate={animate}
                             animationDuration={animationDuration}
