@@ -28,7 +28,6 @@ class LineChart extends PureComponent {
             .x(xAccessor)
             .y(yAccessor)
             .defined(value => typeof value === 'number')
-            .curve(curve)
             (dataPoints)
     }
 
