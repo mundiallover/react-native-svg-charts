@@ -34,6 +34,14 @@ class AnimatedPath extends Component {
     componentWillUnmount() {
         cancelAnimationFrame(this.animation)
     }
+    
+    shouldComponentUpdate(nextProps, nextState) {
+        const { animate } = nextProps;
+        if (animate) {
+            return false;
+        }
+        return true;
+    }
 
     _animate(start) {
         cancelAnimationFrame(this.animation)
