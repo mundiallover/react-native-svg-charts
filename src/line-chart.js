@@ -103,7 +103,8 @@ class LineChart extends PureComponent {
           const offsetCalc = (breakpoint) => {
             let bp = y(breakpoint);
             let ymax = y(extent[0]);
-            let off = (bp/ymax);
+            let off = ymax ? (bp/ymax) : 0.0001;
+            off = off < 0.0001 ? 0.0001 : off;
             return off;
           }
           const offset = (breakpoint) => {
