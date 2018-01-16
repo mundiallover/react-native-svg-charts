@@ -7,13 +7,16 @@ class AnimatedPath extends Component {
 
     constructor(props) {
         super(props)
-
         this.state = { d: props.d }
     }
 
     componentWillReceiveProps(props) {
         const { d: newD, animate } = props
         const { d: oldD }          = this.props
+
+        if(this.currentD === undefined) {
+            this.currentD = oldD;
+        }
 
         this.newD = newD
 
@@ -26,7 +29,7 @@ class AnimatedPath extends Component {
         }
 
         this.newD         = newD
-        this.interpolator = interpolate.interpolatePath(oldD, newD)
+        this.interpolator = interpolate.interpolatePath(this.currentD, newD)
 
         this._animate()
     }
@@ -51,21 +54,20 @@ class AnimatedPath extends Component {
             }
 
             // Get the delta on how far long in our animation we are.
-            const delta = (timestamp - start) / this.props.animationDuration
+            let delta = (timestamp - start) / this.props.animationDuration
 
             // If we're above 1 then our animation should be complete.
             if (delta > 1) {
-                // Just to be safe set our final value to the new graph path.
-                this.component.setNativeProps({ d: this.newD })
-                // Stop our animation loop.
-                return
+                delta = 1;
             }
 
             const d = this.interpolator(delta)
             this.component.setNativeProps({ d })
-            // console.log(this.interpolator)
-            // this.tween && console.log(this.tween.tween(delta))
-            // Tween the SVG path value according to what delta we're currently at.
+            this.currentD = d;
+
+            if (delta == 1) {
+                return;
+            }
 
             // Update our state with the new tween value and then jump back into
             // this loop.
